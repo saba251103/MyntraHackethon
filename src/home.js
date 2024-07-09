@@ -1,4 +1,5 @@
-import * as React from 'react';
+// Home.js
+import React from 'react';
 import { styled } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -9,11 +10,12 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import SearchIcon from '@mui/icons-material/Search';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import Button from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 import logo from './logo.png';
 import './App.css';
 import front from './front2.png';
 import divider from './divider1.png';
-import image1 from './front.png'; // replace with your image paths
+import image1 from './front.png';
 import image2 from './image2.png';
 import image3 from './image3.png';
 import image4 from './image4.png';
@@ -62,12 +64,18 @@ const ContactText = styled(Typography)(({ theme }) => ({
 }));
 
 export default function Home() {
+  const navigate = useNavigate(); // Initialize navigate
+
   const openInstagram = () => {
     window.open('https://www.instagram.com', '_blank');
   };
 
   const openFacebook = () => {
     window.open('https://www.facebook.com', '_blank');
+  };
+
+  const navigateToNextPage = () => {
+    navigate('/nextpage'); // Navigate to NextPage
   };
 
   return (
@@ -125,7 +133,11 @@ export default function Home() {
               Welcome to That Trifecta Muse! Explore our latest collection and find your perfect style.
             </Typography>
             <br></br>
-            <Button variant="outlined" sx={{ color: 'black', borderColor: 'black', display: 'block', mx: 'auto' }}>
+            <Button
+              variant="outlined"
+              sx={{ color: 'black', borderColor: 'black', display: 'block', mx: 'auto' }}
+              onClick={navigateToNextPage} // Handle button click
+            >
               Shop Now
             </Button>
           </Box>
@@ -143,22 +155,17 @@ export default function Home() {
           Shop New
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap' }}>
-          <Box sx={{ maxWidth: '22%', textAlign: 'center' }}>
-            <img src={image1} alt="Shop New Item 1" style={{ width: '100%' }} />
-            <Typography variant="body2">Item 1</Typography>
-          </Box>
-          <Box sx={{ maxWidth: '22%', textAlign: 'center' }}>
-            <img src={image2} alt="Shop New Item 2" style={{ width: '100%' }} />
-            <Typography variant="body2">Item 2</Typography>
-          </Box>
-          <Box sx={{ maxWidth: '22%', textAlign: 'center' }}>
-            <img src={image3} alt="Shop New Item 3" style={{ width: '100%' }} />
-            <Typography variant="body2">Item 3</Typography>
-          </Box>
-          <Box sx={{ maxWidth: '22%', textAlign: 'center' }}>
-            <img src={image4} alt="Shop New Item 4" style={{ width: '100%' }} />
-            <Typography variant="body2">Item 4</Typography>
-          </Box>
+          {[image1, image2, image3, image4].map((image, index) => (
+            <Box key={index} sx={{ maxWidth: '22%', textAlign: 'center' }}>
+              <img
+                src={image}
+                alt={`Shop New Item ${index + 1}`}
+                style={{ width: '100%', cursor: 'pointer' }}
+                onClick={navigateToNextPage} // Handle image click
+              />
+              <Typography variant="body2">Item {index + 1}</Typography>
+            </Box>
+          ))}
         </Box>
         <br></br>
       </Box>
@@ -170,24 +177,19 @@ export default function Home() {
       <Box sx={{ textAlign: 'left', justifyContent: 'center', justifyItems: 'left', backgroundColor: 'Menu' }}>
         <br></br>
         <Box sx={{ display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap' }}>
-          <Box sx={{ maxWidth: '30%', textAlign: 'center' }}>
-            <img src={image5} alt="Shop New Item 1" style={{ width: '100%' }} />
-            <Typography className='new-arrival' variant="h3" sx={{ marginBottom: '1%', textAlign: 'center', fontFamily: 'Atteron' }}>
-              New
-            </Typography>
-          </Box>
-          <Box sx={{ maxWidth: '30%', textAlign: 'center' }}>
-            <img src={image6} alt="Shop New Item 2" style={{ width: '100%' }} />
-            <Typography className='new-arrival' variant="h3" sx={{ marginBottom: '1%', textAlign: 'center', fontFamily: 'Atteron' }}>
-              Loved
-            </Typography>
-          </Box>
-          <Box sx={{ maxWidth: '30%', textAlign: 'center' }}>
-            <img src={image7} alt="Shop New Item 3" style={{ width: '100%' }} />
-            <Typography className='new-arrival' variant="h3" sx={{ marginBottom: '1%', textAlign: 'center', fontFamily: 'Atteron' }}>
-              SaLe
-            </Typography>
-          </Box>
+          {[image5, image6, image7].map((image, index) => (
+            <Box key={index} sx={{ maxWidth: '30%', textAlign: 'center' }}>
+              <img
+                src={image}
+                alt={`Shop Collection Item ${index + 1}`}
+                style={{ width: '100%', cursor: 'pointer' }}
+                onClick={navigateToNextPage} // Handle image click
+              />
+              <Typography className='new-arrival' variant="h3" sx={{ marginBottom: '1%', textAlign: 'center', fontFamily: 'Atteron' }}>
+                {index === 0 ? 'New' : index === 1 ? 'Loved' : 'Sale'}
+              </Typography>
+            </Box>
+          ))}
         </Box>
         <br></br>
         <img
