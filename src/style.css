@@ -1,0 +1,112 @@
+.image-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4%;
+  }
+  
+  .box-decoration {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 16px 0;
+  }
+  
+  .image-upload-label {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  
+  .image-upload-button {
+    background-color: #1976d2;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 16px;
+    width: 100%;
+  }
+  
+  .image-upload-button:hover {
+    background-color: #155fa0;
+  }
+  
+  .img-display-before {
+    color: #ccc;
+  }
+  
+  .img-display-before:hover {
+    color: #aaa;
+  }
+  
+  .img-display-after {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  ul {
+    padding-left: 20px;
+    list-style-type: disc;
+  }
+  
+  label {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  
+  input[type="file"] {
+    display: none;
+  }
+  
+  .box-decoration .MuiBox-root {
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .image-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4%;
+  }
+  
+  ul li {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .image-upload-container .MuiBox-root {
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+  }
+  
+  .image-upload-container .MuiTypography-root {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 16px;
+  }
