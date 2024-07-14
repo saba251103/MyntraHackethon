@@ -13,11 +13,42 @@ function Colortest() {
   const [image, setImage] = useState(null);
   const [cameraImage, setCameraImage] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [bgRemove, setBgRemove] = useState(null);
   const [pickedColors, setPickedColors] = useState({ skin: null, hair: null, eye: null });
   const [analysisResult, setAnalysisResult] = useState('');
+  const [bg, setBackgroundColor] = useState('#ffffff');
   const hiddenFileInput = useRef(null);
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
+
+  const handleRemoveBackground = async () => {
+    const apiKey = "nSHSyfmmaM4YwsqDUt1WMvDu"
+    const apiUrl = "https://api.remove.bg/v1.0/removebg"
+
+    const formData = new FormData();
+    formData.append("image_file", image, image.name);
+    formData.append("size", 'auto');
+
+    try {
+        const res = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'X-Api-Key': apiKey
+            },
+            body: formData
+        })
+
+        const data = await res.blob();
+
+        const reader = new FileReader();
+        reader.onloadend = () => setBgRemove(reader.result)
+        reader.readAsDataURL(data);
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+console.log(image)
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -69,6 +100,7 @@ function Colortest() {
           lastModified: Date.now(),
         });
         setCameraImage(file);
+        setImage(file);
         const img = new Image();
         img.src = imageSrc;
         img.onload = () => {
@@ -78,6 +110,7 @@ function Colortest() {
           canvas.height = IMAGE_SIZE;
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
+          
         };
       })
       .catch((error) => console.log("Error capturing image from webcam:", error));
@@ -125,14 +158,22 @@ function Colortest() {
       Skin Tone: ${skinTone}
       Hair Color: ${hairTone}
       Eye Color: ${eyeTone}
+      Jewelary type that suits you: ${getJewelry(skinTone)}
+      Color Season : ${determineSeason(skinTone, hairTone, eyeTone)}
       Recommendations:
       Colors to Embrace: ${getEmbraceColors(skinTone)}
       Colors to Avoid: ${getAvoidColors(skinTone)}
-    `;
 
+
+    `;
+ 
     setAnalysisResult(result);
   };
 
+  
+  const getJewelry = (skinTone) => {
+    return skinTone === 'Warm' ? 'Gold' : 'Silver';
+  };
   const getSkinTone = (color) => {
     const rgb = color.match(/\d+/g).map(Number);
     const avg = (rgb[0] + rgb[1] + rgb[2]) / 3;
@@ -157,14 +198,25 @@ function Colortest() {
     return skinTone === 'Warm' ? 'Cool or muted colors' : 'Warm tones that may wash you out';
   };
 
-  const getColorPalette = (skinTone) => {
-    if (skinTone === 'Warm') {
-      return ['#FFD700', '#FF6347', '#FFA07A', '#FF4500', '#FFDAB9']; // Warm color palette
+
+
+  const determineSeason = (skinTone, hairTone, eyeTone) => {
+    if (skinTone === 'Warm' && hairTone === 'Light' && eyeTone === 'Light') {
+      return 'Spring';
+
+    } else if (skinTone === 'Warm' && hairTone === 'Dark' && eyeTone === 'Deep') {
+      return 'Autumn';
+    } else if (skinTone === 'Cool' && hairTone === 'Light' && eyeTone === 'Light') {
+      return 'Summer';
+    } else if (skinTone === 'Cool' && hairTone === 'Dark' && eyeTone === 'Deep') {
+      return 'Winter';
     } else {
-      return ['#4682B4', '#6A5ACD', '#7B68EE', '#8A2BE2', '#ADFF2F']; // Cool color palette
+      return 'Spring';
     }
   };
-
+ const changebackdrop = (color) =>{
+  setBackgroundColor(color);
+ };
 
   return (
     <Box sx={{ flexGrow: 1, backgroundColor: '#f5f5f5', padding: '4%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -227,7 +279,7 @@ function Colortest() {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => handleUploadButtonClick(image)}
+            onClick={handleRemoveBackground}
             sx={{ width: '100%' }}
           >
             Upload
@@ -267,7 +319,7 @@ function Colortest() {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => handleUploadButtonClick(cameraImage)}
+                onClick={handleRemoveBackground}
                 sx={{ width: '100%', marginBottom: '8px' }}
               >
                 Upload
@@ -288,7 +340,7 @@ function Colortest() {
       {/* Displaying image */}
       <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-start', width: '100%', maxWidth: '800px', backgroundColor: '#fff', borderRadius: '8px', padding: '24px', boxShadow: 3, flexWrap: 'wrap' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: '16px', width: '100%', maxWidth: '360px' }}>
-          <canvas ref={canvasRef} onClick={pickColor} style={{ width: `${IMAGE_SIZE}px`, height: `${IMAGE_SIZE}px`, border: '1px solid #ccc' }} />
+          <canvas ref={canvasRef} onClick={pickColor} style={{ width: `${IMAGE_SIZE}px`, height: `${IMAGE_SIZE}px`, border: '1px solid #ccc' ,cursor: 'crosshair', border: '1px solid black' }} />
           {selectedImage && <img src={selectedImage} alt="selected" style={{ width: `${IMAGE_SIZE}px`, height: `${IMAGE_SIZE}px`, objectFit: 'cover' }} />}
         </Box>
       </Box>
@@ -330,6 +382,52 @@ function Colortest() {
           <Typography>{analysisResult}</Typography>
         </Box>
       )}
+      <br/>
+      {/* Background removal */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-start', width: '20%', maxWidth: '800px', backgroundColor: bg, borderRadius: '8px', padding: '24px', boxShadow: 3, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: '16px', width: '100%', maxWidth: '360px' }}>
+     
+      {bgRemove && <div className="border-2 border-gray-500 rounded-r-lg border-dashed flex justify-center p-2 w-40 lg:w-80">
+                            <img className="w-90 h-90" src={bgRemove} alt="img" sx={{height:'49%',width: '400px',marginLeft: '10px'}}/>
+                        </div>}
+    </Box>
+    </Box>
+    <Box sx={{ mt: 2 }}>
+          <Box sx={{ mt: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => changebackdrop('pink')}
+              sx={{ marginRight: '8px', backgroundColor: '#FFB6C1', '&:hover': { backgroundColor: '#FF69B4' } }}
+            >
+              Change to Pink
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => changebackdrop('blue')}
+              sx={{ marginRight: '8px', backgroundColor: '#ADD8E6', '&:hover': { backgroundColor: '#87CEEB' } }}
+            >
+              Change to Blue
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => changebackdrop('green')}
+              sx={{ marginRight: '8px', backgroundColor: '#90EE90', '&:hover': { backgroundColor: '#32CD32' } }}
+            >
+              Change to Green
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => changebackdrop('purple')}
+              sx={{ backgroundColor: '#DDA0DD', '&:hover': { backgroundColor: '#EE82EE' } }}
+            >
+              Change to Purple
+            </Button>
+          </Box>
+</Box>
     </Box>
     
   );

@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './home';
 import NextPage from './nextpage';
 import Colortest from './colortest';
+import ColorRecommendation from './color';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/nextpage" element={<NextPage />} />
         <Route path="/colortest" element={<Colortest />} />
+        <Route path="/color" element={<ColorRecommendation />}/>
       </Routes>
       </div>
     </Router>
