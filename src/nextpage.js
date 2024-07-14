@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, IconButton } from '@mui/material';
+import { Box, Typography, Button} from '@mui/material';
 import styled from '@mui/material/styles/styled';
-import { useNavigate } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import './App.css';
@@ -36,12 +35,6 @@ const MainContent = styled(Box)({
   maxWidth: '800px',
 });
 
-const ImageGallery = styled(Box)({
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'center',
-  marginTop: '10px',
-});
 
 const MainImage = styled('img')({
   width: '400px',
@@ -64,18 +57,6 @@ const Price = styled(Typography)({
   marginBottom: '10px',
 });
 
-const Thumbnail = styled('img')(({ selected }) => ({
-  width: '60px',
-  height: '60px',
-  borderRadius: '5px',
-  margin: '0 5px',
-  cursor: 'pointer',
-  border: selected ? '2px solid #3f51b5' : '2px solid transparent',
-  boxShadow: selected ? '0 4px 8px rgba(0, 0, 0, 0.2)' : 'none',
-  '&:hover': {
-    border: '2px solid #3f51b5',
-  },
-}));
 
 export default function NextPage() {
   const [currentImage, setCurrentImage] = useState(image1);

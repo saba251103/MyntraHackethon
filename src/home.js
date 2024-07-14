@@ -232,12 +232,13 @@ export default function Home() {
         <br />
         <ContactContainer id="contact">
           <footer className="footer">
-            <ContactInfo>
-              <ContactTitle variant="h3">Contact Us</ContactTitle>
-              <ContactText variant="body1"><strong>Phone:</strong> +123456789</ContactText>
-              <ContactText variant="body1"><strong>Email:</strong> example@example.com</ContactText>
-              <ContactText variant="body1"><strong>Instagram:</strong> @example_instagram</ContactText>
-            </ContactInfo>
+          <ContactInfo>
+          <ContactTitle variant="h4">Contact Us</ContactTitle>
+          <ContactText variant="body1">Email: support@thattrifectamuse.com</ContactText>
+          <ContactText variant="body1">Phone: +123-456-7890</ContactText>
+          <ContactText variant="body1">Address: 123 Fashion St, Trendy City, Fashionland</ContactText>
+        </ContactInfo>
+
           </footer>
           <Box sx={{ marginTop: 4 }}>
             <Typography variant="body2">&copy; 2024 Trifecta. All rights reserved.</Typography>

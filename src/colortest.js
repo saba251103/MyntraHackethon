@@ -5,78 +5,51 @@ import "./style.css"; // Assuming you have custom styles
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import colortest from './colortest.png';
 import colortest1 from './colortest.png';
 
+const IMAGE_SIZE = 220; // Fixed size for images and canvas
 
 function Colortest() {
   const [image, setImage] = useState(null);
   const [cameraImage, setCameraImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [pickedColors, setPickedColors] = useState({ skin: null, hair: null, eye: null });
+  const [analysisResult, setAnalysisResult] = useState('');
   const hiddenFileInput = useRef(null);
   const webcamRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    const imgname = event.target.files[0].name;
+    const imgname = file.name;
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = () => {
       const img = new Image();
       img.src = reader.result;
       img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const maxSize = Math.max(img.width, img.height);
-        canvas.width = maxSize;
-        canvas.height = maxSize;
+        const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
-        ctx.drawImage(
-          img,
-          (maxSize - img.width) / 2,
-          (maxSize - img.height) / 2
-        );
-        canvas.toBlob(
-          (blob) => {
-            const file = new File([blob], imgname, {
-              type: "image/png",
-              lastModified: Date.now(),
-            });
-
-            console.log(file);
-            setImage(file);
-          },
-          "image/jpeg",
-          0.8
-        );
+        canvas.width = IMAGE_SIZE;
+        canvas.height = IMAGE_SIZE;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, (IMAGE_SIZE - img.width) / 2, (IMAGE_SIZE - img.height) / 2, img.width, img.height);
+        
+        canvas.toBlob((blob) => {
+          const newFile = new File([blob], imgname, { type: "image/png", lastModified: Date.now() });
+          setImage(newFile);
+        }, "image/png", 0.8);
       };
     };
   };
 
   const handleUploadButtonClick = (file) => {
-    var myHeaders = new Headers();
-    const token = "adhgsdaksdhk938742937423";
-    myHeaders.append("Authorization", `Bearer ${token}`);
-
-    var formdata = new FormData();
-    formdata.append("file", file);
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: formdata,
-      redirect: "follow",
-    };
-
-    fetch("https://trickuweb.com/upload/profile_pic", requestOptions)
-      .then((response) => response.text())
-      .then((result) => {
-        console.log(JSON.parse(result));
-        const profileurl = JSON.parse(result);
-        setImage(profileurl.img_url);
-      })
-      .catch((error) => console.log("error", error));
+    if (file) {
+      setSelectedImage(URL.createObjectURL(file));
+    }
   };
 
-  const handleClick = (event) => {
+  const handleClick = () => {
     hiddenFileInput.current.click();
   };
 
@@ -96,14 +69,107 @@ function Colortest() {
           lastModified: Date.now(),
         });
         setCameraImage(file);
+        const img = new Image();
+        img.src = imageSrc;
+        img.onload = () => {
+          const canvas = canvasRef.current;
+          const ctx = canvas.getContext("2d");
+          canvas.width = IMAGE_SIZE;
+          canvas.height = IMAGE_SIZE;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
+        };
       })
       .catch((error) => console.log("Error capturing image from webcam:", error));
   }, [webcamRef]);
 
+  const pickColor = (event) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const imageData = ctx.getImageData(x, y, 1, 1).data;
+    
+    const pickedColor = `rgb(${imageData[0]}, ${imageData[1]}, ${imageData[2]})`;
+    setPickedColors((prevColors) => {
+      if (!prevColors.skin) {
+        return { ...prevColors, skin: pickedColor };
+      } else if (!prevColors.hair) {
+        return { ...prevColors, hair: pickedColor };
+      } else if (!prevColors.eye) {
+        return { ...prevColors, eye: pickedColor };
+      } else {
+        return prevColors;
+      }
+    });
+  };
+
+  const resetColors = () => {
+    setPickedColors({ skin: null, hair: null, eye: null });
+    setAnalysisResult('');
+  };
+
+  const analyzeColors = () => {
+    const { skin, hair, eye } = pickedColors;
+    if (!skin || !hair || !eye) {
+      setAnalysisResult('Please pick colors for skin, hair, and eyes.');
+      return;
+    }
+
+    const skinTone = getSkinTone(skin);
+    const hairTone = getHairTone(hair);
+    const eyeTone = getEyeTone(eye);
+
+    const result = `
+      Skin Tone: ${skinTone}
+      Hair Color: ${hairTone}
+      Eye Color: ${eyeTone}
+      Recommendations:
+      Colors to Embrace: ${getEmbraceColors(skinTone)}
+      Colors to Avoid: ${getAvoidColors(skinTone)}
+    `;
+
+    setAnalysisResult(result);
+  };
+
+  const getSkinTone = (color) => {
+    const rgb = color.match(/\d+/g).map(Number);
+    const avg = (rgb[0] + rgb[1] + rgb[2]) / 3;
+    return avg > 127 ? 'Warm' : 'Cool';
+  };
+
+  const getHairTone = (color) => {
+    const rgb = color.match(/\d+/g).map(Number);
+    return rgb[2] < rgb[1] ? 'Dark' : 'Light';
+  };
+
+  const getEyeTone = (color) => {
+    const rgb = color.match(/\d+/g).map(Number);
+    return rgb[2] < rgb[1] ? 'Deep' : 'Light';
+  };
+
+  const getEmbraceColors = (skinTone) => {
+    return skinTone === 'Warm' ? 'Earthy tones, warm reds, soft pastels' : 'Cool blues, soft purples, jewel tones';
+  };
+
+  const getAvoidColors = (skinTone) => {
+    return skinTone === 'Warm' ? 'Cool or muted colors' : 'Warm tones that may wash you out';
+  };
+
+  const getColorPalette = (skinTone) => {
+    if (skinTone === 'Warm') {
+      return ['#FFD700', '#FF6347', '#FFA07A', '#FF4500', '#FFDAB9']; // Warm color palette
+    } else {
+      return ['#4682B4', '#6A5ACD', '#7B68EE', '#8A2BE2', '#ADFF2F']; // Cool color palette
+    }
+  };
+
+
   return (
     <Box sx={{ flexGrow: 1, backgroundColor: '#f5f5f5', padding: '4%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <Box sx={{ width: '100%', maxWidth: '800px', textAlign: 'center', mb: '16px' }}>
-      <Box id="home" sx={{ display: 'flex', alignItems: 'center', backgroundColor: 'Menu', padding: '2%' }}>
+        <Box id="home" sx={{ display: 'flex', alignItems: 'center', backgroundColor: 'Menu', padding: '2%' }}>
           <img
             src={colortest1}
             alt="A girl wearing new collection clothing in a ruffle purple dress with a sunflower"
@@ -118,14 +184,14 @@ function Colortest() {
               Test<br />
               _________
             </Typography>
-            <br /><br/>
+            <br /><br />
             <Typography variant="body1">
-              Welcome To try Korean Colortest! Explore and find your perfect style.
+              Welcome to try Korean Colortest! Explore and find your perfect style.
             </Typography>
             <br />
           </Box>
-          </Box> 
-          <br />
+        </Box>
+        <br />
         <Typography variant="h4" sx={{ fontFamily: 'Arial', mb: '16px' }}>
           Before you begin, please read the rules:
         </Typography>
@@ -144,7 +210,7 @@ function Colortest() {
           <label htmlFor="image-upload-input" className="image-upload-label" style={{ marginBottom: '8px' }}>
             {image ? image.name : "Choose an image"}
           </label>
-          <div onClick={handleClick} style={{ cursor: "pointer", marginBottom: '8px', position: 'relative', width: '220px', height: '200px', border: '2px dashed #ccc', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+          <div onClick={handleClick} style={{ cursor: "pointer", marginBottom: '8px', position: 'relative', width: `${IMAGE_SIZE}px`, height: `${IMAGE_SIZE}px`, border: '2px dashed #ccc', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
             {image ? (
               <img src={URL.createObjectURL(image)} alt="uploaded" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
@@ -173,7 +239,7 @@ function Colortest() {
           <label htmlFor="camera-input" className="image-upload-label" style={{ marginBottom: '8px' }}>
             {cameraImage ? cameraImage.name : "Take a photo"}
           </label>
-          <div style={{ marginBottom: '8px', position: 'relative', width: '220px', height: '200px', border: '2px dashed #ccc', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+          <div style={{ marginBottom: '8px', position: 'relative', width: `${IMAGE_SIZE}px`, height: `${IMAGE_SIZE}px`, border: '2px dashed #ccc', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
             {cameraImage ? (
               <img src={URL.createObjectURL(cameraImage)} alt="camera capture" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
@@ -218,7 +284,54 @@ function Colortest() {
           )}
         </Box>
       </Box>
+      <br />
+      {/* Displaying image */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-start', width: '100%', maxWidth: '800px', backgroundColor: '#fff', borderRadius: '8px', padding: '24px', boxShadow: 3, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: '16px', width: '100%', maxWidth: '360px' }}>
+          <canvas ref={canvasRef} onClick={pickColor} style={{ width: `${IMAGE_SIZE}px`, height: `${IMAGE_SIZE}px`, border: '1px solid #ccc' }} />
+          {selectedImage && <img src={selectedImage} alt="selected" style={{ width: `${IMAGE_SIZE}px`, height: `${IMAGE_SIZE}px`, objectFit: 'cover' }} />}
+        </Box>
+      </Box>
+      {/* Display Colors */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', width: '100%', maxWidth: '800px', mt: '16px' }}>
+        <Box sx={{ textAlign: 'center', width: '120px', height: '100px', backgroundColor: pickedColors.skin || '#ccc' }}>
+          <Typography variant="body2" sx={{ color: 'white' }}>Skin Color</Typography>
+          <Typography variant="body2" sx={{ color: 'white' }}>{pickedColors.skin}</Typography>
+        </Box>
+        
+        <Box sx={{ textAlign: 'center', width: '120px', height: '100px', backgroundColor: pickedColors.hair || '#ccc' }}>
+          <Typography variant="body2" sx={{ color: 'white' }}>Hair Color</Typography>
+          <Typography variant="body2" sx={{ color: 'white' }}>{pickedColors.hair}</Typography>
+        </Box>
+        <Box sx={{ textAlign: 'center', width: '120px', height: '100px', backgroundColor: pickedColors.eye || '#ccc' }}>
+          <Typography variant="body2" sx={{ color: 'white' }}>Eye Color</Typography>
+          <Typography variant="body2" sx={{ color: 'white' }}>{pickedColors.eye}</Typography>
+        </Box>
+      </Box>
+
+      {/* Edit Colors */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', maxWidth: '800px', mt: '16px' }}>
+        <Button variant="contained" color="secondary" onClick={resetColors} sx={{ width: '100%' }}>
+          Edit Colors
+        </Button>
+      </Box>
+
+      {/* Analyze */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', maxWidth: '800px', mt: '16px' }}>
+        <Button variant="contained" color="secondary" onClick={analyzeColors} sx={{ width: '100%' }}>
+          Analyze 
+        </Button>
+      </Box>
+
+      {/* Analysis Result */}
+      {analysisResult && (
+        <Box sx={{ mt: '16px', p: 2, border: '1px solid #ccc', borderRadius: '4px', width: '100%', maxWidth: '800px', backgroundColor: '#fff' }}>
+          <Typography variant="h6">Analysis Result:</Typography>
+          <Typography>{analysisResult}</Typography>
+        </Box>
+      )}
     </Box>
+    
   );
 }
 
