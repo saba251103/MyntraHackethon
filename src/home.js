@@ -23,7 +23,6 @@ import image6 from './image6.png';
 import image7 from './image7.png';
 import image8 from './image.png';
 import { useNavigate } from 'react-router-dom';
-import Colortest from './colortest';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   alignItems: 'center',

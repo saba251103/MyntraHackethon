@@ -74,11 +74,6 @@ console.log(image)
     };
   };
 
-  const handleUploadButtonClick = (file) => {
-    if (file) {
-      setSelectedImage(URL.createObjectURL(file));
-    }
-  };
 
   const handleClick = () => {
     hiddenFileInput.current.click();
@@ -154,25 +149,27 @@ console.log(image)
     const hairTone = getHairTone(hair);
     const eyeTone = getEyeTone(eye);
 
-    const result = `
-      Skin Tone: ${skinTone}
-      Hair Color: ${hairTone}
-      Eye Color: ${eyeTone}
-      Jewelary type that suits you: ${getJewelry(skinTone)}
-      Color Season : ${determineSeason(skinTone, hairTone, eyeTone)}
-      Recommendations:
-      Colors to Embrace: ${getEmbraceColors(skinTone)}
-      Colors to Avoid: ${getAvoidColors(skinTone)}
+    const result = {
+    
+ 
+      skinTone,
+      hairTone,
+      eyeTone,
+      jewelryType: getJewelry(skinTone), // Added jewelry type recommendation
+      ColorSeason : determineSeason(skinTone, hairTone, eyeTone),
+      embraceColors: getEmbraceColors(skinTone),
+      avoidColors: getAvoidColors(skinTone),
+    };
 
-
-    `;
+  
  
     setAnalysisResult(result);
   };
 
+
   
   const getJewelry = (skinTone) => {
-    return skinTone === 'Warm' ? 'Gold' : 'Silver';
+    return skinTone == 'Warm' ? 'Gold' : 'Silver';
   };
   const getSkinTone = (color) => {
     const rgb = color.match(/\d+/g).map(Number);
@@ -198,7 +195,33 @@ console.log(image)
     return skinTone === 'Warm' ? 'Cool or muted colors' : 'Warm tones that may wash you out';
   };
 
+  const getSeasonPallette = (season) => {
+    if (season === 'Spring') {
+      return ['#f1668f', '#f8617c', '#f0dc7b', '#bbe09a', '#fac0b2','#fda67b','#fcbfb2','#d0842e','#3677af','#7c4040','#b3b0b7','#cb1428','#15acb4','#8ca1e0','#faebdf']; 
+    } else if(season == 'Autumn') {
+      return ['#fea41c', '#da6e1f', '#bfafa0', '#abc6a3', '#b6ae7f','#e0d5c3','#f2ebd9','#b72d26','#f87678','#815b4a','#e0b348','#315471','#5572b6','#e4bf9f','#fc7578']; 
+      }
+    else if(season == 'Summer'){
+      return ['#bd384d', '#2a5285', '#c1d1e4', '#85a8d2', '#eee8c7','#bf163d','#8da5e3','#7eccb3','#169d99','#9cd3e2','#cde3ee','#ebd4dc','#bf478f','#bf163d','#bf163d'];
+      }
+    else if(season == 'Winter'){
+      return ['#cac2b7', '#384d6c', '#5d55a0', '#194fb5', '#ecdec4','#f66b91','#a1274b','#7a3e60','#f5eda4','#1faad5','#158e7b','#dbcde6','#d8e5dd','#d3d9e9','#d5d8e7'];
+      }
+   
+  };
 
+  const getLipstickShade = (season) => {
+    if (season === 'Spring') {
+    return ['#ba5e5e','#be121e','#d33e44',' #fc4c4e','#f15278','#fa8075','#e75562','#f62221'];
+    } else if(season == 'Autumn') {
+      return ['#9f4835','#e76474','#7a282a','#eb574d','#c32025','#9c1003','#a44b45','#ad3419'];
+    } else if(season == 'Summer'){
+      return ['#d78383','#c56747','#cc3266','#e72878','#ff66ae','#a43c5d','#bb4a76','#d7708e'];
+    }
+    else if(season == 'Winter'){
+      return ['#8d444f','#99002e','#d30015','#cf0170','#e61c66','#f65799','#df1060','#b40c57'];
+    }
+  };
 
   const determineSeason = (skinTone, hairTone, eyeTone) => {
     if (skinTone === 'Warm' && hairTone === 'Light' && eyeTone === 'Light') {
@@ -377,9 +400,40 @@ console.log(image)
 
       {/* Analysis Result */}
       {analysisResult && (
-        <Box sx={{ mt: '16px', p: 2, border: '1px solid #ccc', borderRadius: '4px', width: '100%', maxWidth: '800px', backgroundColor: '#fff' }}>
-          <Typography variant="h6">Analysis Result:</Typography>
-          <Typography>{analysisResult}</Typography>
+              <Box>
+                <Typography variant="h6" sx={{ mb: '8px' }}>
+                  Analysis Result
+                </Typography>
+                <Typography variant="body1">
+                  Skin Tone: {analysisResult.skinTone}
+                </Typography>
+                <Typography variant="body1">
+                  Hair Tone: {analysisResult.hairTone}
+                </Typography>
+                <Typography variant="body1">
+                  Eye Tone: {analysisResult.eyeTone}
+                </Typography>
+                <Typography variant="body1">
+                  Jewelry Type: {analysisResult.jewelryType}
+                </Typography>
+                <Typography variant="body1">
+                  Season Type: {analysisResult.ColorSeason}
+                </Typography>
+                <Typography variant="body1" sx={{ mt: '8px' }}>
+                  Embrace Colors: {analysisResult.embraceColors}
+                </Typography>
+                <Typography variant="body1" sx={{ mt: '8px' }}>
+                  Avoid Colors: {analysisResult.avoidColors}
+                </Typography>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', mt: '8px' }}>
+                  <Typography variant="body2" sx={{ mb: '4px' }}>Based on your seasonal color this is your recommendation:</Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    {getSeasonPallette(analysisResult.ColorSeason).map((color, index) => (
+                      <Button key={index} sx={{ width: '40px', height: '40px', backgroundColor: color, borderRadius: '4px', border: '1px solid #000', mr: '4px', mb: '4px' }} onClick={() => changebackdrop(color)} />
+                    ))}
+                  </Box>
+                </Box>
         </Box>
       )}
       <br/>
@@ -392,43 +446,23 @@ console.log(image)
                         </div>}
     </Box>
     </Box>
-    <Box sx={{ mt: 2 }}>
-          <Box sx={{ mt: 2 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => changebackdrop('pink')}
-              sx={{ marginRight: '8px', backgroundColor: '#FFB6C1', '&:hover': { backgroundColor: '#FF69B4' } }}
-            >
-              Change to Pink
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => changebackdrop('blue')}
-              sx={{ marginRight: '8px', backgroundColor: '#ADD8E6', '&:hover': { backgroundColor: '#87CEEB' } }}
-            >
-              Change to Blue
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => changebackdrop('green')}
-              sx={{ marginRight: '8px', backgroundColor: '#90EE90', '&:hover': { backgroundColor: '#32CD32' } }}
-            >
-              Change to Green
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => changebackdrop('purple')}
-              sx={{ backgroundColor: '#DDA0DD', '&:hover': { backgroundColor: '#EE82EE' } }}
-            >
-              Change to Purple
-            </Button>
-          </Box>
+
+    {/*Lipstick and foundation shade */}
+    <Box sx={{ display: 'flex', flexDirection: 'column', mt: '8px' }}>
+                  <Typography variant="body2" sx={{ mb: '4px' }}>The Lipstick that suits you are:</Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    {getLipstickShade(analysisResult.ColorSeason).map((color, index) => (
+                      <Box key={index} sx={{ width: '40px', height: '40px', backgroundColor: color, borderRadius: '4px', border: '1px solid #000', mr: '4px', mb: '4px' }} onClick={() => changebackdrop(color)} />
+                    ))}
+                  </Box>
+                  <br></br>
+                    <Typography variant="body2" sx={{ mb: '4px' }}>The Foundation that suits you is:</Typography>
+                    <Box sx={{ textAlign: 'center', width: '120px', height: '100px',alignItems:'center',justifyContent:'center', backgroundColor: pickedColors.skin || '#ccc' }}></Box>
+                    <Typography variant="body2" sx={{ mb: '4px' }}>{pickedColors.skin}</Typography>
+
+                </Box>
+       
 </Box>
-    </Box>
     
   );
 }
