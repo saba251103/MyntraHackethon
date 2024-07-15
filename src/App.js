@@ -9,7 +9,7 @@ import ColorRecommendation from './color';
 function App() {
   return (
     <Router>
-      <div className='App'> 
+      <div className='App' sx={{}}> 
       <Routes> 
         <Route path="/" element={<Home />} />
         <Route path="/nextpage" element={<NextPage />} />

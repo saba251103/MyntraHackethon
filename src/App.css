@@ -20,7 +20,7 @@ body, html {
   padding-right: 15%;
   padding-top: 5%;
   padding-bottom: 5%;
-  background-image: url('src/background.png'); 
+  background-image: url('/Users/sabatanji/Desktop/newdir/MyntraHackethon/myntrahackethon/src/background.png'); 
   background-size: cover;
   background-position: center;
 }
