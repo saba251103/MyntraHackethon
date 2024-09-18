@@ -84,7 +84,6 @@ export default function Home() {
 
   return (
     <div>
-        
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <StyledToolbar>
@@ -171,7 +170,7 @@ export default function Home() {
                 style={{ width: '100%', cursor: 'pointer' }}
                 onClick={() => navigateToNextPage(index + 1)} // Handle image click
               />
-              <Typography variant="body2">Item {index + 1}</Typography>
+              <Typography variant="body2"></Typography>
             </Box>
           ))}
         </Box>

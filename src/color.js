@@ -1,4 +1,3 @@
-import React, { useState, useRef, useCallback } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import background2 from './bg2.png';
