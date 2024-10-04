@@ -28,7 +28,7 @@ function Colortest() {
   const canvasRef = useRef(null);
 
   const handleRemoveBackground = async () => {
-    const apiKey = "nSHSyfmmaM4YwsqDUt1WMvDu"
+    const apiKey = "SBRUeAwAfmHigCwYX87zPqtK"
     const apiUrl = "https://api.remove.bg/v1.0/removebg"
 
     const formData = new FormData();
